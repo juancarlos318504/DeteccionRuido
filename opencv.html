@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Detección de ruido</title>
+</head>
+
+<body>
+    <h2>Detección de ruido</h2>
+    <p id="status">OpenCV esta cargando...</p>
+    <div>
+        <div class="inputoutput">
+            
+            <div class="caption">imageSrc
+                <input type="file" id="canvasInput" name="file" />
+            </div>
+            <h1 id="p1">Imágen</h1>
+        </div>
+        <div class="inputoutput">
+            <canvas id="canvasOutput"></canvas>
+            <div class="caption">Salida</div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        let imgElement = document.getElementById('imageSrc');
+        let inputElement = document.getElementById('canvasInput');
+        inputElement.addEventListener('change', (e) => {
+            imgElement.src = URL.createObjectURL(e.target.files[0]);
+        }, false);
+        imgElement.onload = function () {
+            let src = cv.imread(imgElement);
+            let dst = new cv.Mat();
+            let men = new cv.Mat();
+            let menO = new cv.Mat();
+            cv.cvtColor(src, src, cv.COLOR_RGB2GRAY, 0);
+            // You can try more different parameters
+            var t = cv.Laplacian(src, dst, cv.CV_64F, 1, 1, 0, cv.BORDER_DEFAULT);
+            console.log(t,cv.meanStdDev(dst, menO, men),menO.data64F[0], men.data64F[0]);
+            if(men.data64F[0] > 10)
+            document.getElementById("p1").innerHTML = "Not blur";
+            else
+            document.getElementById("p1").innerHTML = "blur";
+            cv.imshow('canvasOutput', dst);
+            src.delete(); dst.delete();
+
+        };
+        function onOpenCvReady() {
+            document.getElementById('status').innerHTML = 'OpenCV esta listo para usarse.';
+        }
+    </script>
+    <script async src="opencv.js" onLoad="onOpenCvReady();" type="text/javascript"></script>
+</body>
+
+</html>
